@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite --watch --open",
-    "build": "vite build",
+    "build": "vite build --base=./",
     "start": "vite"
   },
   "dependencies": {
