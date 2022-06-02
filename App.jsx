@@ -1,7 +1,18 @@
 import React from 'react'
+import styled from 'styled-components'
+
+import Game from './components/Game/Game.jsx'
+
+const ContainerDiv = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
 
 export default function App () {
     return (
-        <h1> Welcome </h1>
+        <ContainerDiv>
+            <Game></Game>
+        </ContainerDiv>
     )
 }
