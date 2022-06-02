@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+
 import Board from '../Board/Board'
+import { getNeighboursForCell } from '../../utils/helpers'
 
 const Row = styled.div`
     display: flex;
@@ -60,6 +62,43 @@ export default function Game() {
         ])
     }, [])
 
+    function nextTick() {
+        if(currentBoardIndex + 1 == boards.length){
+            const currentBoard = boards[currentBoardIndex]
+            const boardSize = Math.floor(Math.sqrt(currentBoard.cellData.length))
+            const newBoard = []
+            for(let cellNumber=0; cellNumber<currentBoard.cellData.length; cellNumber++){
+                let colIdx = Math.floor(cellNumber / boardSize)
+                let rowIdx = cellNumber % boardSize
+                let myself = currentBoard.cellData[cellNumber]
+                let neighbours = getNeighboursForCell(currentBoard.cellData, rowIdx, colIdx)
+                let aliveNeighbours = neighbours.reduce((prev, cur)=> cur.alive ? prev + 1 : prev, 0)
+                if(myself.alive){
+                    newBoard.push( (aliveNeighbours == 2 || aliveNeighbours == 3) ? {
+                        alive: true
+                    } : {
+                        alive: false
+                    })
+                } else {
+                    newBoard.push((aliveNeighbours == 3) ? {
+                        alive: true
+                    } : {
+                        alive: false
+                    })
+                }
+                
+            }
+            setBoards([...boards, {width: 500, height:500, cellData: newBoard}])
+        }
+        setCurrentBoardIndex(currentBoardIndex + 1)
+    }
+
+    function previousTick() {
+        if(currentBoardIndex > 0){
+            setCurrentBoardIndex(currentBoardIndex - 1)
+        }
+    }
+    
     return (
         boards.length > currentBoardIndex && currentBoardIndex >= 0
             ?
@@ -69,9 +108,9 @@ export default function Game() {
                         <Board {...boards[currentBoardIndex]} />
                     </Row>
                     <Row>
-                        <Button> {"<"} Prev</Button>
+                        <Button onClick={previousTick}> {"<"} Prev</Button>
                         <Spacing />
-                        <Button> {">"} Next</Button>
+                        <Button onClick={nextTick}> {">"} Next</Button>
                     </Row>
                 </>
             )
