@@ -7,6 +7,7 @@ const ContainerDiv = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
 `
 
 export default function App () {
