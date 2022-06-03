@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 
 import Board from '../Board/Board'
-import { getNeighboursForCell } from '../../utils/helpers'
+import { flatToGrid, getNeighboursForCell } from '../../utils/helpers'
 
 const Row = styled.div`
     display: flex;
@@ -37,13 +37,54 @@ export default function Game() {
 
     let [boards, setBoards] = useState([])
     let [currentBoardIndex, setCurrentBoardIndex] = useState(0)
+    
+    function createNewBoard(cellsList, width, height) {
+        width = width || 500
+        height = height || 500
+        if(!Array.isArray(cellsList)) throw "Cell List should be an array."
+        if(cellsList.length == 0) throw "Cell List cannot be empty."
+        if (Array.isArray(cellsList[0])) {
+            if (cellsList.length != cellsList[0].length) throw "Cell list row and col not of equal length. Cell list should be a single dimetional array whose length is a perfect square, or a two dimensional array with equal number of row and columns."
+            setBoards(
+                [
+                    {
+                        width,
+                        height,
+                        cellData: cellsList
+                    }
+                ]
+            )
+        } else { 
+            let squareSize = Math.floor(Math.sqrt(cellsList.length))
+            if (Math.pow(squareSize, 2) != cellsList.length ) throw "Cell list length is not a perfect square. Cell list should be a single dimetional array whose length is a perfect square, or a two dimensional array with equal number of row and columns"
+            let newBoard = flatToGrid(cellsList)
+            setBoards(
+                [
+                    {
+                        width,
+                        height,
+                        cellData: newBoard
+                    }
+                ]
+            )
+        }
+        
+    }
 
     useEffect(()=>{ 
-        setBoards([
-            {
-                width: 500,
-                height: 500,
-                cellData: [
+        createNewBoard([
+                    {
+                        alive: true,
+                    },
+                    {
+                        alive: false,
+                    },
+                    {
+                        alive: true,
+                    },
+                    {
+                        alive: false,
+                    },
                     {
                         alive: false,
                     },
@@ -52,14 +93,36 @@ export default function Game() {
                     },
                     {
                         alive: true,
+                    },
+                    {
+                        alive: false,
+                    },
+                    {
+                        alive: false,
+                    },
+                    {
+                        alive: true,
+                    },
+                    {
+                        alive: false,
+                    },
+                    {
+                        alive: false,
+                    },
+                    {
+                        alive: false,
+                    },
+                    {
+                        alive: false,
+                    },
+                    {
+                        alive: false,
                     },
                     {
                         alive: false,
                     },
                 ]
-            }
-
-        ])
+            )
     }, [])
 
     function nextTick() {
@@ -67,28 +130,28 @@ export default function Game() {
             const currentBoard = boards[currentBoardIndex]
             const boardSize = Math.floor(Math.sqrt(currentBoard.cellData.length))
             const newBoard = []
-            for(let cellNumber=0; cellNumber<currentBoard.cellData.length; cellNumber++){
-                let colIdx = Math.floor(cellNumber / boardSize)
-                let rowIdx = cellNumber % boardSize
-                let myself = currentBoard.cellData[cellNumber]
-                let neighbours = getNeighboursForCell(currentBoard.cellData, rowIdx, colIdx)
-                let aliveNeighbours = neighbours.reduce((prev, cur)=> cur.alive ? prev + 1 : prev, 0)
-                if(myself.alive){
-                    newBoard.push( (aliveNeighbours == 2 || aliveNeighbours == 3) ? {
-                        alive: true
-                    } : {
-                        alive: false
-                    })
-                } else {
-                    newBoard.push((aliveNeighbours == 3) ? {
-                        alive: true
-                    } : {
-                        alive: false
-                    })
+            for(let rowIdx=0; rowIdx<currentBoard.cellData.length; rowIdx++){
+                for(let colIdx=0; colIdx<currentBoard.cellData[rowIdx].length; colIdx++){
+                    let myself = currentBoard.cellData[rowIdx][colIdx]
+                    let neighbours = getNeighboursForCell(currentBoard.cellData, rowIdx, colIdx)
+                    console.log(neighbours);
+                    let aliveNeighbours = neighbours.reduce((prev, cur)=> cur.alive ? prev + 1 : prev, 0)
+                    if(myself.alive){
+                        newBoard.push( (aliveNeighbours == 2 || aliveNeighbours == 3) ? {
+                            alive: true
+                        } : {
+                            alive: false
+                        })
+                    } else {
+                        newBoard.push((aliveNeighbours == 3) ? {
+                            alive: true
+                        } : {
+                            alive: false
+                        })
+                    }
                 }
-                
             }
-            setBoards([...boards, {width: 500, height:500, cellData: newBoard}])
+            setBoards([...boards, { width: 500, height: 500, cellData: flatToGrid(newBoard)}])
         }
         setCurrentBoardIndex(currentBoardIndex + 1)
     }

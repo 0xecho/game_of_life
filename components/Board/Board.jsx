@@ -15,18 +15,9 @@ const Row = styled.div`
 
 export default function Board( { width, height, cellData } ) {
 
-    let rows = []
-    cellData.forEach((el, idx) => {
-        if( idx == 0 || (idx !== 1 && (idx % Math.floor(Math.sqrt(cellData.length))) == 0) ){
-            rows.push([el])
-        }
-        else {
-            rows[rows.length-1].push(el)
-        }
-    })
 
     return (
-        rows.map((row, idx) => {
+        cellData.map((row, idx) => {
             return <Row key={idx}>
                 {
                     row.map((cell, idx) => {
